@@ -87,7 +87,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      IMAGE_REF: ${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }}
+      IMAGE_REF: ${{ needs.build.outputs.image }}:${{ github.sha }}@${{ needs.build.outputs.digest }}
 
     steps:
 
@@ -96,7 +96,7 @@ jobs:
       with:
         image: ${{ env.IMAGE_REF }}
         policy: ""
-        identity: "blah-blah-blah"
+        identity: ".*"
         issuer: https://token.actions.githubusercontent.com
         extra-params: --strict --output yaml
 
