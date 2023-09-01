@@ -86,14 +86,20 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
 
-    # permissions:
-    #   # Needed for signing the container image with GitHub OIDC Token
-    #   id-token: write
-
     env:
       IMAGE_REF: ${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }}
 
     steps:
+
+    - name: Validate
+      uses: enterprise-contract/action-validate-image@v1.1
+      with:
+        image: ${{ env.IMAGE_REF }}
+        policy: ""
+        identity: ".*"
+        issuer: https://token.actions.githubusercontent.com
+        extra-params: --strict --output yaml
+
     - name: Clone deployment repo
       uses: actions/checkout@v3
       with:
