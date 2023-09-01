@@ -105,6 +105,8 @@ jobs:
 
     - name: Commit deployment changes
       run: |
+        set -exuo pipefail
+
         git diff
 
         # Copied from https://github.com/enterprise-contract/infra-deployments-ci/blob/main/hack/create-pr.sh
@@ -114,6 +116,9 @@ jobs:
         echo "${DEPLOY_KEY}" > "${HOME}/.ssh/id_ed25519"
         chmod 600 "${HOME}/.ssh/id_ed25519"
         trap 'rm -rf "${HOME}/.ssh/id_rsa"' EXIT
+
+        # Ensure repo is checked out with SSH.
+        git remote set-url origin git@github.com:lcarva/devfile-sample-go-basic-deploy.git
 
         git commit -a -m "Update deployment image to $IMAGE_REF"
         git push
