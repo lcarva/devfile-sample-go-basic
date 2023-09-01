@@ -43,7 +43,7 @@ jobs:
       uses: redhat-actions/buildah-build@v2
       with:
         image: ${{ env.IMAGE_REPO }}
-        tags: ${{ env.GITHUB_SHA }}
+        tags: ${{ github.sha }}
         dockerfiles: ./Dockerfile
 
     - name: Push to quay.io
