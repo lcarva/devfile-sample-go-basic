@@ -80,3 +80,40 @@ jobs:
       registry-username: ${{ vars.REGISTRY_QUAY_IO_USER }}
     secrets:
       registry-password: ${{ secrets.REGISTRY_QUAY_IO_PASSWORD }}
+
+  deployment:
+    needs: [build, provenance]
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+
+    # permissions:
+    #   # Needed for signing the container image with GitHub OIDC Token
+    #   id-token: write
+
+    env:
+      IMAGE_REF: ${{ needs.build.outputs.image }}@${{ needs.build.outputs.digest }}
+
+    steps:
+    - name: Clone deployment repo
+      uses: actions/checkout@v3
+      with:
+        repository: lcarva/devfile-sample-go-basic-deploy
+        ref: main
+
+    - name: Update deployment
+      run: ./hack/update-image.sh $IMAGE_REF
+
+    - name: Commit deployment changes
+      run: |
+        git diff
+
+        # Copied from https://github.com/enterprise-contract/infra-deployments-ci/blob/main/hack/create-pr.sh
+        git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+        git config --global user.name "${GITHUB_ACTOR}"
+        mkdir -p "${HOME}/.ssh"
+        echo "${DEPLOY_KEY}" > "${HOME}/.ssh/id_ed25519"
+        chmod 600 "${HOME}/.ssh/id_ed25519"
+        trap 'rm -rf "${HOME}/.ssh/id_rsa"' EXIT
+
+        git commit -a -m "Update deployment image to $IMAGE_REF"
+        git push
