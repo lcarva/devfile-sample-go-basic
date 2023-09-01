@@ -122,3 +122,5 @@ jobs:
 
         git commit -a -m "Update deployment image to $IMAGE_REF"
         git push
+      env:
+        DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
