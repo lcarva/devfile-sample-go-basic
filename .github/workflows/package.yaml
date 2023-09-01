@@ -66,17 +66,17 @@ jobs:
       env:
         DIGEST: ${{ steps.push-image.outputs.digest }}
 
-  # provenance:
-  #   needs: [build]
-  #   permissions:
-  #     actions: read # for detecting the Github Actions environment.
-  #     id-token: write # for creating OIDC tokens for signing.
-  #     packages: write # for uploading attestations.
-  #   if: ${{ github.ref == 'refs/heads/master' }}
-  #   uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v1.7.0
-  #   with:
-  #     image: ${{ needs.build.outputs.image }}
-  #     digest: ${{ needs.build.outputs.digest }}
-  #     registry-username: ${{ vars.REGISTRY_QUAY_IO_USER }}
-  #   secrets:
-  #     registry-password: ${{ secrets.REGISTRY_QUAY_IO_PASSWORD }}
+  provenance:
+    needs: [build]
+    permissions:
+      actions: read # for detecting the Github Actions environment.
+      id-token: write # for creating OIDC tokens for signing.
+      packages: write # for uploading attestations.
+    if: ${{ github.ref == 'refs/heads/master' }}
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v1.9.0
+    with:
+      image: ${{ needs.build.outputs.image }}
+      digest: ${{ needs.build.outputs.digest }}
+      registry-username: ${{ vars.REGISTRY_QUAY_IO_USER }}
+    secrets:
+      registry-password: ${{ secrets.REGISTRY_QUAY_IO_PASSWORD }}
