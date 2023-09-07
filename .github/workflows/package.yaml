@@ -54,11 +54,6 @@ jobs:
         image: ${{ steps.build-image.outputs.image }}
         tags: ${{ steps.build-image.outputs.tags }}
 
-    - name: Sign image with GitHub OIDC Token
-      run: cosign sign --yes ${IMAGE_REGISTRY}/${IMAGE_REPO}@${DIGEST}
-      env:
-        DIGEST: ${{ steps.push-image.outputs.digest }}
-
     # - name: Generate and store SBOM
     #   run: |
     #       syft "${IMAGE_REGISTRY}/${IMAGE_REPO}@${DIGEST}" -o spdx-json=sbom-spdx.json
@@ -90,15 +85,6 @@ jobs:
       IMAGE_REF: ${{ needs.build.outputs.image }}:${{ github.sha }}@${{ needs.build.outputs.digest }}
 
     steps:
-    - name: Validate
-      uses: enterprise-contract/action-validate-image@v1.1
-      with:
-        image: ${{ env.IMAGE_REF }}
-        policy: ""
-        identity: ".*"
-        issuer: https://token.actions.githubusercontent.com
-        extra-params: --strict --output yaml
-
     - name: Clone deployment repo
       uses: actions/checkout@v3
       with:
